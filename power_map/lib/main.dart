@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:powermap/view/screens/Splash.dart';
 
-import 'domain/resources/Strings.dart';
-import 'view/screens/Home.dart';
+import 'data/resources/Strings.dart';
 
 void main() => runApp(PowerMapApp());
 
@@ -13,8 +13,7 @@ class PowerMapApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.yellow,
       ),
-      home: HomePage(title: Strings.app_name),
+      home: SplashScreen(),
     );
   }
 }
-
