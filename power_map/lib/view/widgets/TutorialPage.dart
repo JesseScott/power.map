@@ -58,7 +58,7 @@ class TutorialPageState extends State<TutorialPage>
               child: Text(
                 widget.title,
                 textAlign: TextAlign.center,
-                style: Style.OnboardingHeaderTextStyle,
+                style: Style.TutorialHeaderTextStyle,
               ),
             ),
             SizedBox(height: Dimensions.large_padding),
@@ -66,7 +66,7 @@ class TutorialPageState extends State<TutorialPage>
               widget.subtitle,
               softWrap: true,
               textAlign: TextAlign.center,
-              style: Style.OnboardingTitleTextStyle,
+              style: Style.TutorialTitleTextStyle,
             ),
             SizedBox(height: Dimensions.large_padding),
             FlatButton(

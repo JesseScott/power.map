@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:powermap/data/resources/Colors.dart';
 import 'package:powermap/data/resources/Strings.dart';
 import 'package:powermap/data/resources/Style.dart';
-import 'package:powermap/domain/interactor/TutorialInteractor.dart';
+import 'package:powermap/domain/bloc/TutorialBloc.dart';
 import 'package:powermap/domain/navigation/Navigation.dart';
+import 'package:powermap/view/widgets/BaseContainer.dart';
+import 'package:powermap/view/widgets/TutorialPage.dart';
 
 class TutorialScreen extends StatefulWidget {
   @override
@@ -13,23 +15,66 @@ class TutorialScreen extends StatefulWidget {
 }
 
 class TutorialScreenState extends State<TutorialScreen> {
+  final tutorialBloc = TutorialBloc();
   final PageController controller = new PageController();
+
   int currentPage = 0;
   int maxPages = 1; // 0-based
   bool lastPage = false;
 
-  void _onPageChanged(int page) {
+  // region - Overrides
+
+  @override
+  void initState() {
+    super.initState();
+    tutorialBloc.fetchAll();
+  }
+
+  @override
+  void dispose() {
+    tutorialBloc.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(TutorialScreen oldWidget) {
     setState(() {
-      currentPage = page;
-      lastPage = (currentPage == maxPages);
+
     });
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
   Widget build(BuildContext context) {
-    TutorialInteractor interactor =
-    InjectorWidget.of(context).getTutorialInteractor();
+    return BaseContainer(
+      child: _buildView(),
+    );
+  }
 
+  // endregion
+
+  // region - Private
+
+  Widget _buildView() {
+    return StreamBuilder(
+      stream: tutorialBloc.allItems,
+      builder: (context, AsyncSnapshot<List<TutorialPage>> snapshot) {
+        if (snapshot.hasData) {
+          return _buildPages(snapshot.data);
+        } else if (snapshot.hasError) {
+          return Text(snapshot.error.toString());
+        }
+        return Center(
+          child: CircularProgressIndicator(
+            backgroundColor: BrandColors.colorAccent,
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPages(List<TutorialPage> pages) {
+    debugPrint("PL: ${pages.length} ");
     return Container(
       color: BrandColors.colorPrimary,
       child: Column(
@@ -38,7 +83,7 @@ class TutorialScreenState extends State<TutorialScreen> {
           Expanded(
             flex: 14,
             child: PageView(
-              children: interactor.getTutorialPages(),
+              children: pages,
               controller: controller,
               onPageChanged: _onPageChanged,
             ),
@@ -55,7 +100,7 @@ class TutorialScreenState extends State<TutorialScreen> {
                     style: Style.PagerTextStyle,
                   ),
                   onPressed: () =>
-                  lastPage ? null : Navigation.goToHome(context),
+                      lastPage ? null : Navigation.goToHome(context),
                 ),
                 FlatButton(
                   child: Text(
@@ -63,10 +108,10 @@ class TutorialScreenState extends State<TutorialScreen> {
                     style: Style.PagerTextStyle,
                   ),
                   onPressed: () => lastPage
-                      ? markTutorialSeen(interactor)
+                      ? _markTutorialSeen()
                       : controller.nextPage(
-                      duration: Duration(milliseconds: 300),
-                      curve: Curves.easeIn),
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.easeIn),
                 ),
               ],
             ),
@@ -76,8 +121,18 @@ class TutorialScreenState extends State<TutorialScreen> {
     );
   }
 
-  markTutorialSeen(TutorialInteractor interactor) {
-    interactor.setHasSeenTutorial();
+  _onPageChanged(int page) {
+    setState(() {
+      currentPage = page;
+      lastPage = (currentPage == maxPages);
+    });
+  }
+
+  _markTutorialSeen() {
+    tutorialBloc.setHasSeenTutorial();
     Navigation.goToHome(context);
   }
+
+// endregion
+
 }

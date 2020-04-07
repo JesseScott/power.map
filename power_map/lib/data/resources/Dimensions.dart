@@ -7,4 +7,5 @@ class Dimensions {
   static const large_text_size = 26.0;
   static const medium_text_size = 20.0;
   static const body_text_size = 16.0;
+  static const huge_text_size = 32.0;
 }
