@@ -5,7 +5,7 @@ class Navigation {
   static void goToHome(BuildContext context) {
     Navigator.pushReplacement(
       context,
-      new MaterialPageRoute(
+      MaterialPageRoute(
         builder: (BuildContext context) => HomeScreen(),
       ),
     );
